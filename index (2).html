@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can we make it official?</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght=600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+        }
+        /* Smooth transitions for size adjustments */
+        #yesBtn {
+            transition: padding 0.2s ease, font-size 0.2s ease, border-radius 0.2s ease;
+        }
+        #noBtn {
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full bg-gradient-to-br from-[#fff0f2] to-[#fcdce1] flex flex-col items-center justify-center p-4 overflow-x-hidden select-none">
+
+    <div class="flex flex-col items-center max-w-md w-full text-center">
+        
+        <div class="bg-white p-4 rounded-3xl shadow-[0_10px_30px_rgba(253,210,217,0.6)] mb-8 w-72 h-72 flex items-center justify-center overflow-hidden">
+            <img id="mainGif" 
+                 src="start.gif" 
+                 alt="Sticker" 
+                 class="w-full h-full object-contain rounded-2xl">
+        </div>
+
+        <div class="min-h-[110px] flex flex-col items-center justify-center mb-10">
+            <h1 id="mainHeading" class="text-3xl md:text-4xl font-bold text-[#33222b] tracking-tight leading-snug">
+                Can we make it official?
+            </h1>
+            <p id="subHeading" class="text-lg text-[#73626a] mt-2 font-medium hidden">
+                Another chance?
+            </p>
+        </div>
+
+        <div id="actionContainer" class="flex flex-row flex-wrap items-center justify-center gap-5 min-h-[150px] w-full max-w-lg px-4">
+            
+            <button id="yesBtn" 
+                    style="padding: 12px 32px; font-size: 18px;"
+                    class="bg-[#e03a6c] hover:bg-[#c92f5e] text-white font-bold rounded-2xl shadow-lg shadow-[#e03a6c]/30 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap tracking-wide">
+                <span>♡</span> Yes
+            </button>
+
+            <button id="noBtn" class="bg-[#eae4e6] hover:bg-[#dfd8db] text-[#52434a] font-bold py-3 px-6 rounded-2xl shadow-sm cursor-pointer text-base whitespace-nowrap">
+                No
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        // Track states
+        let scaleFactor = 1;
+        let noScale = 1;
+        let noClickCount = 0;
+
+        const mainGif = document.getElementById('mainGif');
+        const mainHeading = document.getElementById('mainHeading');
+        const subHeading = document.getElementById('subHeading');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const actionContainer = document.getElementById('actionContainer');
+
+        // You can add up to 6 different sad GIFs here if you want! 
+        // Right now it will just cycle between sad1 and sad2 automatically.
+        const sadGifs = ["sad1.gif", "sad2.gif"];
+        const happyGif = "yes.gif"; 
+
+        // Progressive text for the sub-heading on each try
+        const dynamicSubtitles = [
+            "Another chance?",               // Try 1
+            "Are you absolutely sure? 🥺",    // Try 2
+            "Think about it again... 💔",     // Try 3
+            "Please? Pretty please? 👇",     // Try 4
+            "You're breaking my heart 😭",    // Try 5
+            "Okay, last chance to say yes!"   // Try 6
+        ];
+
+        // NO BUTTON LOGIC
+        noBtn.addEventListener('click', () => {
+            noClickCount++;
+
+            // 1. Check if they have reached the maximum tries (6 clicks)
+            if (noClickCount >= 6) {
+                noBtn.style.opacity = '0';
+                noBtn.style.pointerEvents = 'none'; // Completely removes the option to click
+            }
+
+            // 2. Update text headings dynamically based on click count
+            mainHeading.innerHTML = "Oh no... 💔";
+            subHeading.classList.remove('hidden');
+            
+            // Get text for current try, or stick to the last one if it goes over
+            const textIndex = Math.min(noClickCount - 1, dynamicSubtitles.length - 1);
+            subHeading.innerText = dynamicSubtitles[textIndex];
+
+            // 3. Cycle through sad images safely
+            const gifIndex = (noClickCount - 1) % sadGifs.length;
+            mainGif.src = sadGifs[gifIndex];
+
+            // 4. Smooth physical growth of the Yes button
+            scaleFactor += 0.3; // Grows at a controlled pace over 6 tries
+            const newPaddingY = 12 * scaleFactor;
+            const newPaddingX = 32 * scaleFactor;
+            const newFontSize = 18 * scaleFactor;
+            const newRadius = 16 * (scaleFactor > 1.8 ? 1.8 : scaleFactor);
+
+            yesBtn.style.padding = `${newPaddingY}px ${newPaddingX}px`;
+            yesBtn.style.fontSize = `${newFontSize}px`;
+            yesBtn.style.borderRadius = `${newRadius}px`;
+
+            // 5. Shrink the No button slightly per click
+            noScale -= 0.12; 
+            noBtn.style.transform = `scale(${noScale})`;
+        });
+
+        // YES BUTTON LOGIC
+        yesBtn.addEventListener('click', () => {
+            mainHeading.innerHTML = "Yayyy! It's official! 🥰❤️";
+            subHeading.classList.add('hidden');
+            mainGif.src = happyGif;
+            actionContainer.innerHTML = ""; // Removes buttons cleanly
+        });
+    </script>
+</body>
+</html>
