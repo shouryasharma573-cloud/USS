@@ -13,7 +13,6 @@
         body {
             font-family: 'Quicksand', sans-serif;
         }
-        /* Smooth transitions for size adjustments */
         #yesBtn {
             transition: padding 0.2s ease, font-size 0.2s ease, border-radius 0.2s ease;
         }
@@ -23,6 +22,8 @@
     </style>
 </head>
 <body class="min-h-screen w-full bg-gradient-to-br from-[#fff0f2] to-[#fcdce1] flex flex-col items-center justify-center p-4 overflow-x-hidden select-none">
+
+    <audio id="bgMusic" src="music.mp3" loop></audio>
 
     <div class="flex flex-col items-center max-w-md w-full text-center">
         
@@ -58,7 +59,6 @@
     </div>
 
     <script>
-        // Track states
         let scaleFactor = 1;
         let noScale = 1;
         let noClickCount = 0;
@@ -69,46 +69,51 @@
         const yesBtn = document.getElementById('yesBtn');
         const noBtn = document.getElementById('noBtn');
         const actionContainer = document.getElementById('actionContainer');
+        const bgMusic = document.getElementById('bgMusic');
 
-        // You can add up to 6 different sad GIFs here if you want! 
-        // Right now it will just cycle between sad1 and sad2 automatically.
         const sadGifs = ["sad1.gif", "sad2.gif"];
         const happyGif = "yes.gif"; 
 
-        // Progressive text for the sub-heading on each try
         const dynamicSubtitles = [
-            "Another chance?",               // Try 1
-            "Are you absolutely sure? 🥺",    // Try 2
-            "Think about it again... 💔",     // Try 3
-            "Please? Pretty please? 👇",     // Try 4
-            "You're breaking my heart 😭",    // Try 5
-            "Okay, last chance to say yes!"   // Try 6
+            "Another chance?",
+            "Are you absolutely sure? 🥺",
+            "Think about it again... 💔",
+            "Please? Pretty please? 👇",
+            "You're breaking my heart 😭",
+            "Okay, last chance to say yes!"
         ];
+
+        // Helper function to safely play music on first user interaction
+        function startMusic() {
+            if (bgMusic.paused) {
+                bgMusic.play().catch(error => {
+                    console.log("Audio play blocked or failed:", error);
+                });
+            }
+        }
 
         // NO BUTTON LOGIC
         noBtn.addEventListener('click', () => {
             noClickCount++;
+            
+            // Start the music on the first click!
+            startMusic();
 
-            // 1. Check if they have reached the maximum tries (6 clicks)
             if (noClickCount >= 6) {
                 noBtn.style.opacity = '0';
-                noBtn.style.pointerEvents = 'none'; // Completely removes the option to click
+                noBtn.style.pointerEvents = 'none'; 
             }
 
-            // 2. Update text headings dynamically based on click count
             mainHeading.innerHTML = "Oh no... 💔";
             subHeading.classList.remove('hidden');
             
-            // Get text for current try, or stick to the last one if it goes over
             const textIndex = Math.min(noClickCount - 1, dynamicSubtitles.length - 1);
             subHeading.innerText = dynamicSubtitles[textIndex];
 
-            // 3. Cycle through sad images safely
             const gifIndex = (noClickCount - 1) % sadGifs.length;
             mainGif.src = sadGifs[gifIndex];
 
-            // 4. Smooth physical growth of the Yes button
-            scaleFactor += 0.3; // Grows at a controlled pace over 6 tries
+            scaleFactor += 0.3; 
             const newPaddingY = 12 * scaleFactor;
             const newPaddingX = 32 * scaleFactor;
             const newFontSize = 18 * scaleFactor;
@@ -118,17 +123,19 @@
             yesBtn.style.fontSize = `${newFontSize}px`;
             yesBtn.style.borderRadius = `${newRadius}px`;
 
-            // 5. Shrink the No button slightly per click
             noScale -= 0.12; 
             noBtn.style.transform = `scale(${noScale})`;
         });
 
         // YES BUTTON LOGIC
         yesBtn.addEventListener('click', () => {
+            // Start the music if they instantly clicked Yes!
+            startMusic();
+
             mainHeading.innerHTML = "Yayyy! It's official! 🥰❤️";
             subHeading.classList.add('hidden');
             mainGif.src = happyGif;
-            actionContainer.innerHTML = ""; // Removes buttons cleanly
+            actionContainer.innerHTML = ""; 
         });
     </script>
 </body>
